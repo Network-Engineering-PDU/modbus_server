@@ -1,0 +1,16 @@
+modbus_server
+*.o
+.vscode/*
+*.in
+*.m4
+autom4te.cache/
+build-aux/
+config.h
+*.log
+*.status
+*.Po
+configure
+stamp-h1
+.dirstamp
+Makefile
+*~

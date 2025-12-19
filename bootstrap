@@ -1,0 +1,24 @@
+#!/bin/sh
+
+set -e
+
+
+if which libtoolize > /dev/null; then
+    libtoolize="libtoolize"
+elif which glibtoolize >/dev/null; then
+    libtoolize="glibtoolize"
+else
+    echo "$0: Error: libtool is required" >&2
+    exit 1
+fi
+
+
+(
+set -x
+
+aclocal --warnings=all
+${libtoolize} --automake --copy
+autoconf --warnings=all
+autoheader --warnings=all
+automake --warnings=all --add-missing
+)

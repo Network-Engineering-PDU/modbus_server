@@ -1,0 +1,53 @@
+#!/bin/sh
+
+NAME=modbus_server
+
+DAEMON=/usr/bin/modbus_server
+PID_FILE=/tmp/modbus_server.pid
+
+[ -f $DAEMON ] | exit 0
+
+
+start () {
+	$DAEMON
+}
+
+stop () {
+
+	if [ -f "$PID_FILE" ]; then
+		pid=$(cat $PID_FILE)
+		if kill -0 "$pid" 2>/dev/null; then
+			kill "$pid"
+        		echo "PID $pid terminated"
+		else
+			rm $PID_FILE
+        		echo "modbus_server not running"
+		fi
+    	else
+        	echo "modbus_server not running"
+    	fi
+}
+
+case "$1" in
+start)
+	echo "Start modbus_server..."
+	start
+;;
+
+stop)
+	echo "Stop modbus_server..."
+	stop
+;;
+restart)
+	echo "Restarting modbus_server..."
+	stop
+	sleep 1
+	start
+;;
+
+*)
+	echo "Usage: $0 {start|stop|restart}"
+	exit 1
+esac
+
+
