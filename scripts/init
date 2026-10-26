@@ -5,7 +5,7 @@ NAME=modbus_server
 DAEMON=/usr/bin/modbus_server
 PID_FILE=/tmp/modbus_server.pid
 
-[ -f $DAEMON ] | exit 0
+[ -f $DAEMON ] || exit 0
 
 
 start () {

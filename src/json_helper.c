@@ -16,7 +16,7 @@
 static const char* json_get_string(cJSON* json, const char* id);
 static int json_get_int(int* num, cJSON* json, char* id);
 static int json_get_float(float* num, cJSON* json, char* id);
-// static int json_get_bool(bool* bl, cJSON* json, char* id);
+static int json_get_bool(bool* bl, cJSON* json, char* id);
 
 /* Callbacks ******************************************************************/
 /* Function definitions *******************************************************/
@@ -73,38 +73,47 @@ int json_helper_update_in_data(const char* json_str)
 	int err;
 	err = json_get_float(&in_data.voltage, json, "voltage");
 	if (err != 0) {
+		cJSON_Delete(json);
 		return 1;
 	}
 	err = json_get_float(&in_data.current, json, "current");
 	if (err != 0) {
+		cJSON_Delete(json);
 		return 1;
 	}
 	err = json_get_float(&in_data.active_power, json, "active_power");
 	if (err != 0) {
+		cJSON_Delete(json);
 		return 1;
 	}
 	err = json_get_float(&in_data.reactive_power, json, "reactive_power");
 	if (err != 0) {
+		cJSON_Delete(json);
 		return 1;
 	}
 	err = json_get_float(&in_data.apparent_power, json, "apparent_power");
 	if (err != 0) {
+		cJSON_Delete(json);
 		return 1;
 	}
 	err = json_get_float(&in_data.power_factor, json, "power_factor");
 	if (err != 0) {
+		cJSON_Delete(json);
 		return 1;
 	}
 	err = json_get_float(&in_data.phase, json, "phase");
 	if (err != 0) {
+		cJSON_Delete(json);
 		return 1;
 	}
 	err = json_get_float(&in_data.frequency , json, "frequency");
 	if (err != 0) {
+		cJSON_Delete(json);
 		return 1;
 	}
 	err = json_get_float(&in_data.energy, json, "energy");
 	if (err != 0) {
+		cJSON_Delete(json);
 		return 1;
 	}
 
@@ -127,47 +136,58 @@ int json_helper_update_out_data(const char* json_str)
 	const char* str;
 	err = json_get_float(&out_data.voltage, json, "voltage");
 	if (err != 0) {
+		cJSON_Delete(json);
 		return 1;
 	}
 	err = json_get_float(&out_data.current, json, "current");
 	if (err != 0) {
+		cJSON_Delete(json);
 		return 1;
 	}
 	err = json_get_float(&out_data.active_power, json, "active_power");
 	if (err != 0) {
+		cJSON_Delete(json);
 		return 1;
 	}
 	err = json_get_float(&out_data.reactive_power, json, "reactive_power");
 	if (err != 0) {
+		cJSON_Delete(json);
 		return 1;
 	}
 	err = json_get_float(&out_data.apparent_power , json, "apparent_power");
 	if (err != 0) {
+		cJSON_Delete(json);
 		return 1;
 	}
 	err = json_get_float(&out_data.power_factor, json, "power_factor");
 	if (err != 0) {
+		cJSON_Delete(json);
 		return 1;
 	}
 	err = json_get_float(&out_data.phase, json, "phase");
 	if (err != 0) {
+		cJSON_Delete(json);
 		return 1;
 	}
 	err = json_get_float(&out_data.frequency, json, "frequency");
 	if (err != 0) {
+		cJSON_Delete(json);
 		return 1;
 	}
 	err = json_get_float(&out_data.energy, json, "energy");
 	if (err != 0) {
+		cJSON_Delete(json);
 		return 1;
 	}
 	str = json_get_string(json, "conn");
 	if (str == NULL) {
+		cJSON_Delete(json);
 		return 1;
 	}
 	out_data.conn = str;
 	err = json_get_int(&out_data.fuse, json, "fuse");
 	if (err != 0) {
+		cJSON_Delete(json);
 		return 1;
 	}
 	models_set_out_data(&out_data);
@@ -189,6 +209,7 @@ int json_helper_update_license(const char* json_str)
 
 	str = json_get_string(json, "type_id");
 	if (str == NULL) {
+		cJSON_Delete(json);
 		return 1;
 	}
 
@@ -245,13 +266,35 @@ int json_helper_update_modbus(const char* json_str)
 		return 1;
 	}
 
-	models_modbus_t modbus;
-	int err;
-	err = json_get_int((int*)(&modbus.addr), json, "addr");
-	if (err != 0) {
-		return 1;
+	/* Start from the values already in use, so one missing or malformed
+	 * field in the response does not discard the rest. */
+	models_modbus_t modbus = *models_get_modbus();
+	const char* parity_str;
+	bool bl;
+
+	json_get_int(&modbus.addr, json, "addr");
+	json_get_int(&modbus.baud_rate, json, "baud_rate");
+	parity_str = json_get_string(json, "parity");
+	if (parity_str != NULL && parity_str[0] != '\0') {
+		modbus.parity = parity_str[0];
 	}
-	
+	json_get_int(&modbus.stop_bits, json, "stop_bits");
+	if (json_get_bool(&bl, json, "tcp_eth1_enabled") == 0) {
+		modbus.tcp_eth1 = bl;
+	}
+	if (json_get_bool(&bl, json, "tcp_eth2_enabled") == 0) {
+		modbus.tcp_eth2 = bl;
+	}
+	const char* role_str = json_get_string(json, "role");
+	if (role_str != NULL) {
+		modbus.master = strcmp(role_str, "master") == 0;
+	}
+	json_get_int(&modbus.scan_first, json, "scan_first");
+	json_get_int(&modbus.scan_last, json, "scan_last");
+	json_get_int(&modbus.timeout_ms, json, "timeout_ms");
+	json_get_int(&modbus.poll_interval_s, json, "poll_interval_s");
+	json_get_int(&modbus.offline_after, json, "offline_after");
+
 	models_set_modbus(&modbus);
 
 	cJSON_Delete(json);
