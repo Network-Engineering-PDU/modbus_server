@@ -48,6 +48,21 @@ typedef struct models_out_sw_t {
 
 typedef struct models_modbus_t {
 	int addr;
+	/* RTU (RS-485, the "485" ports). Data bits are always 8. */
+	int baud_rate;
+	char parity; /* 'N', 'E' or 'O' */
+	int stop_bits;
+	/* TCP: each NIC gated independently, since the socket binds 0.0.0.0. */
+	bool tcp_eth1;
+	bool tcp_eth2;
+	/* Daisy chain: a master polls the other PDUs on the 485 bus (unit IDs
+	 * scan_first..scan_last) instead of answering as a slave at addr. */
+	bool master;
+	int scan_first;
+	int scan_last;
+	int timeout_ms;
+	int poll_interval_s;
+	int offline_after;
 } models_modbus_t;
 
 const models_in_data_t* models_get_in_data();

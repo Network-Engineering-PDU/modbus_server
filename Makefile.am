@@ -8,6 +8,7 @@ modbus_server_SOURCES += src/models.c
 modbus_server_SOURCES += src/http_helper.c
 modbus_server_SOURCES += src/json_helper.c
 modbus_server_SOURCES += src/daemonize.c
+modbus_server_SOURCES += src/chain_master.c
 modbus_server_LDFLAGS = -pthread
 
 # Include dir

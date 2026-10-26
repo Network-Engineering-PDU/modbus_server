@@ -58,6 +58,7 @@ int http_helper_get(http_get_req_t* req, char* url)
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void*)req);
 
 		res = curl_easy_perform(curl);
+		curl_slist_free_all(headers);
 		int retcode;
 		curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &retcode);
 		if (res != CURLE_OK) {
@@ -102,6 +103,7 @@ int http_helper_post(http_get_req_t* req, char* url, char* post_data)
 		}
 
 		res = curl_easy_perform(curl);
+		curl_slist_free_all(headers);
 		int retcode;
 		curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &retcode);
 		if (res != CURLE_OK) {
@@ -142,6 +144,7 @@ int http_helper_put(http_get_req_t* req, char* url, char* put_data)
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void*)req);
 
 		res = curl_easy_perform(curl);
+		curl_slist_free_all(headers);
 		int retcode;
 		curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &retcode);
 		if (res != CURLE_OK) {

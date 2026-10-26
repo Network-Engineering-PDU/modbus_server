@@ -10,7 +10,23 @@ static models_license_t license;
 
 static models_out_sw_t* out_sw_list;
 static int out_sw_list_len;
-static models_modbus_t modbus;
+/* Same defaults as ne-fw-api's DEFAULT_MODBUS_SETTINGS, used if the HTTP
+ * fetch from ne-fw-api ever fails, so a transient fetch problem can't turn
+ * into "nothing works" (invalid serial params, or no TCP bound at all). */
+static models_modbus_t modbus = {
+	.addr = 1,
+	.baud_rate = 115200,
+	.parity = 'N',
+	.stop_bits = 1,
+	.tcp_eth1 = true,
+	.tcp_eth2 = true,
+	.master = false,
+	.scan_first = 2,
+	.scan_last = 16,
+	.timeout_ms = 200,
+	.poll_interval_s = 5,
+	.offline_after = 3,
+};
 
 /* Function prototypes ********************************************************/
 
@@ -121,5 +137,5 @@ const models_modbus_t* models_get_modbus()
 
 void models_set_modbus(const models_modbus_t* l_modbus)
 {
-	modbus.addr = l_modbus->addr;
+	modbus = *l_modbus;
 }
